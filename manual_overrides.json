@@ -1,0 +1,57 @@
+{
+  "_readme": "Values here override anything the pipeline fetches. Edit weekly for vendor-gated metrics using free charts (checkonchain.com, lookintobitcoin.com, bitbo.io) or your Glassnode/CryptoQuant key. Delete a key to let the pipeline own it. '_src' keys are ignored by the dashboard — they are your provenance notes.",
+
+  "tier1": {
+    "exchange_reserves_btc": 2210000,
+    "_src_exchange_reserves": "Glassnode via media, Mar 2026 (7-yr low). Update weekly.",
+    "exchange_netflow_30d_btc": -38000,
+    "lth_supply_btc": 15260000,
+    "_src_lth": "checkonchain / Glassnode weeklies, Jul 2026.",
+    "lth_npc_30d_btc": 21000,
+    "balanced_price_usd": 41800,
+    "_src_bp": "Estimate — replace from checkonchain balanced price chart."
+  },
+
+  "tier2": {
+    "_note_etf_cum": "Pipeline now computes etf_cum_usd from Farside's full daily table. Add an 'etf_cum_usd' key here only if you want to pin it manually.",
+    "basis_ann_pct": 5.2,
+    "rr25": -2.1,
+    "_src_rr25": "Deribit 25d risk reversal — manual from Laevitas/The Block if not fetched.",
+    "sth_cost_basis_usd": 84600,
+    "urpd_clusters": [
+      {"price": 86900, "pct": 6.8},
+      {"price": 74500, "pct": 5.1},
+      {"price": 63800, "pct": 4.4}
+    ],
+    "_src_urpd": "$86.9K cluster per The Block cost-basis reporting, May 2026; others estimated. Replace weekly from checkonchain URPD."
+  },
+
+  "tier3": {
+    "mvrv": 1.27,
+    "mvrv_z": 0.42,
+    "nupl": 0.12,
+    "_src_oscillators": "Public readings, Jul 21 2026. Pipeline pulls live if GLASSNODE_API_KEY set.",
+    "sopr": 1.01,
+    "puell": 0.62,
+    "psip_pct": 57,
+    "coinbase_premium_pct": 0.08,
+    "m2_yoy_pct": 4.6,
+    "_src_m2": "US M2 proxy — pipeline computes from FRED if key set; global composite is manual."
+  },
+
+  "strategy": {
+    "mnav_ev": 1.040,
+    "mnav_basic": 0.722,
+    "btc_holdings": 840447,
+    "strc_price": 95.01,
+    "usd_reserve_usd": 4650000000,
+    "strc_atm_remaining_usd": 17511000000,
+    "global_runway_months": 31.3,
+    "flywheel_health": 60,
+    "_src_strategy": "SEC 8-K, Aug 10 2026 (self-binding disclosure) + market quotes. Update after each weekly 8-K."
+  },
+
+  "history": {
+    "_note": "Optional. Hand-entered series win over pipeline history. Format: \"key\": [[\"YYYY-MM-DD\", value], ...]. Keys: mvrv, mvrv_z, nupl, sopr, puell, reserves, lth, sth_cb, cb_prem, poly_p100, poly_p50, etf_flow, wma200, wma200x, ssr, m2_yoy, corr_gld, corr_qqq, gtrends, funding, fng. Without entries here, the pipeline appends one snapshot per run day, so charts build themselves from your weekly edits."
+  }
+}

@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Desk — Bitcoin operating dashboard</title>
+<meta name="description" content="Bitcoin operating dashboard: price, trend, supply and flows, derivatives, cycle, macro, mining and Strategy — with history on every metric.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0C1116; --panel:#131A21; --panel-2:#0F151B; --line:#223038; --line-soft:#1A2530;
+  --ink:#DCE5EA; --ink-2:#8598A4; --ink-3:#5C6C77;
+  --acc:#4FB3A7; --acc-dim:rgba(79,179,167,.14);
+  --amber:#D9A441; --amber-dim:rgba(217,164,65,.13);
+  --up:#4FB3A7; --dn:#D2695E; --dn-dim:rgba(210,105,94,.14);
+  --display:'Big Shoulders Display',system-ui,sans-serif;
+  --body:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --r:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5;
+  background-image:radial-gradient(1200px 500px at 70% -10%, rgba(79,179,167,.05), transparent 60%);}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:3px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:50;background:rgba(12,17,22,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line)}
+.hd{display:flex;align-items:center;gap:16px;padding:12px 0;flex-wrap:wrap}
+.wordmark{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.04em;line-height:1;
+  text-transform:uppercase}
+.wordmark small{display:block;font-family:var(--body);font-weight:500;font-size:10px;letter-spacing:.14em;
+  color:var(--ink-2);text-transform:uppercase;margin-top:3px}
+.hd-spacer{flex:1}
+.legend{display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:4px 8px;border:1px solid var(--line);
+  border-radius:999px;color:var(--ink-2);white-space:nowrap}
+.badge b{font-weight:600}
+.badge.live{border-color:var(--acc);color:var(--acc)}
+.badge .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);
+  margin-right:5px;vertical-align:1px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+nav.sections{display:flex;gap:2px;padding:0 0 10px;flex-wrap:wrap}
+nav.sections a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);
+  padding:4px 10px;border-radius:4px}
+nav.sections a:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+
+/* ---------- hero strip (market facts) ---------- */
+.hero{border-bottom:1px solid var(--line);background:var(--panel-2)}
+.facts{display:grid;grid-template-columns:minmax(220px,1.4fr) repeat(4,minmax(140px,1fr));gap:1px;
+  background:var(--line-soft)}
+.fact{background:var(--panel-2);padding:18px 16px;display:flex;flex-direction:column}
+.fact .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
+.fact .v{font-family:var(--mono);font-weight:600;font-size:26px;margin-top:6px;letter-spacing:-.01em}
+.fact .v.big{font-size:40px;line-height:1}
+.fact .s{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:4px}
+.delta-up{color:var(--up)} .delta-dn{color:var(--dn)}
+.regime{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.1em;
+  padding:3px 10px;border-radius:4px;margin-top:6px;align-self:flex-start}
+.regime.bear{background:var(--dn-dim);color:var(--dn);border:1px solid rgba(210,105,94,.4)}
+.regime.bull{background:var(--acc-dim);color:var(--acc);border:1px solid rgba(79,179,167,.4)}
+.regime.neutral{background:rgba(124,141,166,.12);color:#7C8DA6;border:1px solid rgba(124,141,166,.4)}
+.fspark{display:block;width:100%;height:30px;margin-top:auto;padding-top:8px;cursor:pointer;opacity:0;
+  transition:opacity .4s}
+.fspark.on{opacity:1}
+
+/* ---------- sections ---------- */
+section.band{position:relative;padding:32px 0 38px;border-bottom:1px solid var(--line)}
+.band-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.band-head h2{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:.05em;
+  text-transform:uppercase;line-height:1}
+.band-head .rule{flex:1;height:1px;background:var(--line-soft);align-self:center}
+
+/* ---------- cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;
+  display:flex;flex-direction:column;gap:8px}
+.card h3{font-size:14px;font-weight:600;letter-spacing:.01em}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:5px 0;
+  border-top:1px dashed var(--line-soft)}
+.kv:first-of-type{border-top:0}
+.kv .k{color:var(--ink-2);font-size:12px}
+.kv .v{font-family:var(--mono);font-weight:600;font-size:15px;text-align:right}
+.kv .v small{font-weight:400;color:var(--ink-2);font-size:11px}
+.bignum{font-family:var(--mono);font-weight:600;font-size:30px;letter-spacing:-.01em}
+.bignum small{font-size:13px;color:var(--ink-2);font-weight:400}
+.src{font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:auto;padding-top:6px}
+
+/* history rows */
+.sparkrow{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;
+  border-top:1px dashed var(--line-soft);padding:8px 0 2px;cursor:pointer;color:inherit;
+  font:inherit;text-align:left}
+.sparkrow[hidden]{display:none}
+.sparkrow .sl{font-family:var(--mono);font-size:9px;color:var(--ink-3);letter-spacing:.08em;
+  text-transform:uppercase;white-space:nowrap;min-width:78px}
+.sparkrow canvas{flex:1;height:34px;min-width:0;display:block}
+.sparkrow .sx{color:var(--ink-3);font-size:13px;line-height:1}
+.sparkrow:hover .sl,.sparkrow:hover .sx{color:var(--acc)}
+
+/* meter / bars / gauge */
+.meter{height:8px;background:var(--panel-2);border:1px solid var(--line-soft);border-radius:99px;
+  position:relative;overflow:hidden}
+.meter i{position:absolute;top:0;bottom:0;left:0;border-radius:99px;background:#7C8DA6}
+.meter-scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;
+  color:var(--ink-3);margin-top:4px;letter-spacing:.05em}
+.gauge{position:relative;height:12px;border-radius:99px;
+  background:linear-gradient(90deg,#2E6D66,#3E5C63,#5C6C77,#8A6C3F,#9C4F44);border:1px solid var(--line)}
+.gauge b{position:absolute;top:-4px;width:4px;height:20px;background:var(--ink);border-radius:2px;
+  transform:translateX(-2px);transition:left .6s ease}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:64px 1fr 52px;gap:8px;align-items:center;
+  font-family:var(--mono);font-size:11px}
+.bar .tr{height:7px;background:var(--panel-2);border-radius:99px;overflow:hidden;border:1px solid var(--line-soft)}
+.bar .tr i{display:block;height:100%;background:var(--amber)}
+.bar .pc{text-align:right;color:var(--ink-2)}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:500;
+  text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line-soft);color:var(--ink)}
+tr:last-child td{border-bottom:0}
+td .ok{color:var(--acc)} td .off{color:var(--dn)}
+.scroll-x{overflow-x:auto}
+
+/* miners */
+.elec{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.elec input[type=range]{accent-color:var(--amber);width:200px}
+.elec .val{font-family:var(--mono);font-weight:600}
+.pcts{display:flex;gap:8px;flex-wrap:wrap}
+.pct{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:4px;padding:6px 10px;
+  font-family:var(--mono);font-size:12px}
+.pct b{display:block;font-size:9px;letter-spacing:.1em;color:var(--ink-3);font-weight:500}
+
+/* ---------- history modal ---------- */
+.modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+  background:rgba(6,10,13,.82);backdrop-filter:blur(3px);padding:16px}
+.modal.open{display:flex}
+.mpanel{background:var(--panel);border:1px solid var(--line);border-radius:8px;max-width:920px;
+  width:100%;padding:18px}
+.mhd{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.mhd h3{font-size:15px;font-weight:600;flex:1}
+.ranges{display:flex;gap:4px}
+.ranges button{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);
+  background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:4px 10px;cursor:pointer}
+.ranges button.on{color:var(--acc);border-color:var(--acc)}
+.mclose{font-family:var(--mono);font-size:12px;color:var(--ink-2);background:none;
+  border:1px solid var(--line);border-radius:4px;padding:4px 10px;cursor:pointer}
+.mclose:hover{color:var(--ink)}
+#mcanvas{width:100%;height:320px;display:block;touch-action:none}
+.mfoot{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:11px;
+  color:var(--ink-3);margin-top:8px;flex-wrap:wrap}
+@media (max-width:640px){#mcanvas{height:240px}}
+
+footer{padding:28px 0 48px;color:var(--ink-3);font-size:11px;line-height:1.7}
+footer .src-line{font-family:var(--mono);font-size:10px}
+
+@media (max-width:900px){
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .fact:first-child{grid-column:1/-1}
+}
+@media (max-width:520px){
+  .facts{grid-template-columns:1fr 1fr}
+  .fact .v{font-size:20px}.fact .v.big{font-size:32px}
+  .band-head h2{font-size:23px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="hd">
+      <div class="wordmark">BTC Desk<small>Bitcoin operating dashboard</small></div>
+      <div class="hd-spacer"></div>
+      <div class="legend">
+        <span class="badge live"><span class="dot" aria-hidden="true"></span>PRICE LIVE</span>
+        <span class="badge" id="cache-badge">CACHE: SAMPLE</span>
+      </div>
+    </div>
+    <nav class="sections" aria-label="Sections">
+      <a href="#facts">Market</a><a href="#trend">Trend</a><a href="#supply">Supply &amp; Flows</a>
+      <a href="#deriv">Derivatives</a><a href="#cycle">Cycle</a><a href="#macro">Macro</a>
+      <a href="#miners">Miners</a><a href="#strategy">Strategy</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ MARKET FACTS (live) ============ -->
+<div class="hero" id="facts">
+  <div class="wrap" style="padding:0">
+    <div class="facts">
+      <div class="fact">
+        <div class="k">BTC / USD · spot</div>
+        <div class="v big" id="v-price">$—</div>
+        <div class="s"><span id="v-price-chg">—</span> 24h · <span id="v-price-src" class="src" style="padding:0">connecting…</span></div>
+        <span class="regime neutral" id="v-regime">REGIME —</span>
+        <canvas class="fspark" data-h="price" role="button" tabindex="0" aria-label="Price history"></canvas>
+      </div>
+      <div class="fact">
+        <div class="k">Network hashrate</div>
+        <div class="v" id="v-hash">— EH/s</div>
+        <div class="s" id="v-height">block —</div>
+        <canvas class="fspark" data-h="hashrate" role="button" tabindex="0" aria-label="Hashrate history"></canvas>
+      </div>
+      <div class="fact">
+        <div class="k">Halving countdown</div>
+        <div class="v" id="v-halving">— days</div>
+        <div class="s">to block 1,050,000 · 3.125 → 1.5625 BTC · <span id="v-halving-date">—</span></div>
+      </div>
+      <div class="fact">
+        <div class="k">Fear &amp; Greed</div>
+        <div class="v" id="v-fng">—</div>
+        <div class="s" id="v-fng-label">—</div>
+        <canvas class="fspark" data-h="fng" role="button" tabindex="0" aria-label="Fear and Greed history"></canvas>
+      </div>
+      <div class="fact">
+        <div class="k">Cycle composite · 0–100</div>
+        <div class="v" id="v-composite">—</div>
+        <div class="s" id="v-composite-label">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ============ TREND ============ -->
+<section class="band" id="trend">
+  <div class="band-head"><h2>Trend</h2><span class="rule"></span></div>
+  <div class="grid">
+
+    <div class="card">
+      <h3>Trend &amp; momentum</h3>
+      <div class="kv"><span class="k" title="Price ÷ 200-day moving average">Mayer multiple</span><span class="v" id="v-mayer">—</span></div>
+      <div class="kv"><span class="k">200-day MA</span><span class="v" id="v-dma200">—</span></div>
+      <div class="kv"><span class="k">30-day return</span><span class="v" id="v-mom30">—</span></div>
+      <div class="kv"><span class="k">90-day return</span><span class="v" id="v-mom90">—</span></div>
+      <div class="kv"><span class="k">Consecutive days below 200DMA</span><span class="v" id="v-below200">—</span></div>
+      <button class="sparkrow" data-h="mayer" hidden aria-label="Mayer multiple history"><span class="sl">Mayer ×</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src" id="src-trend">daily closes · live</div>
+    </div>
+
+    <div class="card">
+      <h3>Long-cycle anchors</h3>
+      <div class="kv"><span class="k">200-week MA</span><span class="v" id="v-wma200">—</span></div>
+      <div class="kv"><span class="k">Price / 200WMA</span><span class="v" id="v-wma200x">—</span></div>
+      <div class="kv"><span class="k" title="Realized price minus transferred price">Balanced price</span><span class="v" id="v-bp">—</span></div>
+      <div class="kv"><span class="k">Price / balanced price</span><span class="v" id="v-bpx">—</span></div>
+      <button class="sparkrow" data-h="wma200x" hidden aria-label="Price to 200-week MA ratio history"><span class="sl">P / 200WMA</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src" id="src-anchors">cache · weekly</div>
+    </div>
+
+    <div class="card">
+      <h3 title="(price ÷ 200-day geometric mean) × (price ÷ age model)">ahr999 index</h3>
+      <div class="bignum" id="v-ahr999">—</div>
+      <div class="meter"><i id="ahr-meter" style="width:0%"></i></div>
+      <div class="meter-scale"><span>&lt;0.45 DCA zone</span><span>0.45–1.2 hold</span><span>&gt;1.2 hot</span></div>
+      <button class="sparkrow" data-h="ahr999" hidden aria-label="ahr999 history"><span class="sl">ahr999</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src">daily closes · live</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ SUPPLY & FLOWS ============ -->
+<section class="band" id="supply">
+  <div class="band-head"><h2>Supply &amp; Flows</h2><span class="rule"></span></div>
+  <div class="grid">
+
+    <div class="card">
+      <h3>Exchange reserves</h3>
+      <div class="bignum" id="v-reserves">— <small>BTC on exchanges</small></div>
+      <div class="kv"><span class="k">30-day netflow</span><span class="v" id="v-netflow">—</span></div>
+      <div class="kv"><span class="k">Share of circulating supply</span><span class="v" id="v-reserves-pct">—</span></div>
+      <button class="sparkrow" data-h="reserves" hidden aria-label="Exchange reserves history"><span class="sl">Reserves</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src" id="src-reserves">cache · weekly</div>
+    </div>
+
+    <div class="card">
+      <h3>Long-term holders</h3>
+      <div class="bignum" id="v-lth">— <small>BTC held ≥155 days</small></div>
+      <div class="kv"><span class="k">30-day net position change</span><span class="v" id="v-lth-npc">—</span></div>
+      <div class="kv"><span class="k">LTH share of supply</span><span class="v" id="v-lth-pct">—</span></div>
+      <button class="sparkrow" data-h="lth" hidden aria-label="Long-term holder supply history"><span class="sl">LTH supply</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src">cache · weekly</div>
+    </div>
+
+    <div class="card">
+      <h3>Spot ETF net flows</h3>
+      <div class="kv"><span class="k">Last session</span><span class="v" id="v-etf-last">—</span></div>
+      <div class="kv"><span class="k">5-day sum</span><span class="v" id="v-etf-5d">—</span></div>
+      <div class="kv"><span class="k">Current streak</span><span class="v" id="v-etf-streak">—</span></div>
+      <div class="kv"><span class="k">Cumulative since launch</span><span class="v" id="v-etf-cum">—</span></div>
+      <button class="sparkrow" data-h="etf_flow" hidden aria-label="Daily ETF net flow history"><span class="sl">Daily flow</span><canvas></canvas><span class="sx">⤢</span></button>
+      <button class="sparkrow" data-h="etf_cum" hidden aria-label="Cumulative ETF flow history"><span class="sl">Cumulative</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src">cache · Farside · daily</div>
+    </div>
+
+    <div class="card">
+      <h3>Cost-basis structure</h3>
+      <div class="kv"><span class="k" title="Average cost basis of coins held under 155 days">Short-term holder cost basis</span><span class="v" id="v-sthcb">—</span></div>
+      <div class="kv"><span class="k">Price vs STH cost basis</span><span class="v" id="v-sthcb-x">—</span></div>
+      <div style="margin-top:2px" class="bars" id="urpd-bars"></div>
+      <button class="sparkrow" data-h="sth_cb" hidden aria-label="STH cost basis history"><span class="sl">STH basis</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src">cache · URPD top clusters · weekly</div>
+    </div>
+
+    <div class="card">
+      <h3>Stablecoins</h3>
+      <div class="kv"><span class="k">Total stablecoin mcap</span><span class="v" id="v-stables">—</span></div>
+      <div class="kv"><span class="k">30-day change</span><span class="v" id="v-stables-30d">—</span></div>
+      <div class="kv"><span class="k" title="BTC market cap ÷ stablecoin market cap">Stablecoin supply ratio</span><span class="v" id="v-ssr">—</span></div>
+      <button class="sparkrow" data-h="stables" hidden aria-label="Stablecoin market cap history"><span class="sl">Mcap</span><canvas></canvas><span class="sx">⤢</span></button>
+      <button class="sparkrow" data-h="ssr" hidden aria-label="Stablecoin supply ratio history"><span class="sl">SSR</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src" id="src-stables">DeFiLlama</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ DERIVATIVES ============ -->
+<section class="band" id="deriv">
+  <div class="band-head"><h2>Derivatives</h2><span class="rule"></span></div>
+  <div class="grid">
+
+    <div class="card">
+      <h3>Perp funding</h3>
+      <div class="kv"><span class="k">Last (annualized)</span><span class="v" id="v-fund-last">—</span></div>
+      <div class="kv"><span class="k">30-day average (ann.)</span><span class="v" id="v-fund-30d">—</span></div>
+      <div class="kv"><span class="k">Negative-funding streak</span><span class="v" id="v-fund-streak">—</span></div>
+      <button class="sparkrow" data-h="funding" hidden aria-label="Funding rate history"><span class="sl">Funding</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src" id="src-fund">cache</div>
+    </div>
+
+    <div class="card">
+      <h3>Basis &amp; volatility</h3>
+      <div class="kv"><span class="k" title="Nearest dated future vs index, annualized">Futures basis (ann.)</span><span class="v" id="v-basis">—</span></div>
+      <div class="kv"><span class="k" title="Deribit 30-day implied volatility index">DVOL</span><span class="v" id="v-dvol">—</span></div>
+      <div class="kv"><span class="k" title="25-delta call IV minus put IV">25Δ risk reversal</span><span class="v" id="v-rr25">—</span></div>
+      <button class="sparkrow" data-h="dvol" hidden aria-label="DVOL history"><span class="sl">DVOL</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src" id="src-deriv">Deribit</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ CYCLE ============ -->
+<section class="band" id="cycle">
+  <div class="band-head"><h2>Cycle</h2><span class="rule"></span></div>
+  <div class="grid">
+
+    <div class="card">
+      <h3>Valuation oscillators</h3>
+      <div class="kv"><span class="k" title="Market cap ÷ realized cap">MVRV</span><span class="v" id="v-mvrv">—</span></div>
+      <div class="kv"><span class="k">MVRV Z-score</span><span class="v" id="v-mvrvz">—</span></div>
+      <div class="kv"><span class="k" title="Net unrealized profit / loss">NUPL</span><span class="v" id="v-nupl">—</span></div>
+      <div class="kv"><span class="k" title="Spent output profit ratio">SOPR</span><span class="v" id="v-sopr">—</span></div>
+      <div class="kv"><span class="k" title="Daily issuance value ÷ its 365-day average">Puell multiple</span><span class="v" id="v-puell">—</span></div>
+      <div class="kv"><span class="k">Supply in profit</span><span class="v" id="v-psip">—</span></div>
+      <button class="sparkrow" data-h="mvrv" hidden aria-label="MVRV history"><span class="sl">MVRV</span><canvas></canvas><span class="sx">⤢</span></button>
+      <button class="sparkrow" data-h="nupl" hidden aria-label="NUPL history"><span class="sl">NUPL</span><canvas></canvas><span class="sx">⤢</span></button>
+      <button class="sparkrow" data-h="sopr" hidden aria-label="SOPR history"><span class="sl">SOPR</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src">cache · weekly</div>
+    </div>
+
+    <div class="card">
+      <h3>Cycle composite</h3>
+      <div class="bignum"><span id="v-composite2">—</span> <small>/ 100</small></div>
+      <div class="gauge" aria-hidden="true"><b id="gauge-pin" style="left:0%"></b></div>
+      <div class="meter-scale"><span>CAPITULATION</span><span>ACCUM.</span><span>NEUTRAL</span><span>HEATED</span><span>EUPHORIA</span></div>
+      <div class="src">MVRV-Z · NUPL · SOPR · Puell · supply-in-profit · Mayer · Fear&amp;Greed · equal weight</div>
+    </div>
+
+    <div class="card">
+      <h3>Prediction markets · 2026 range</h3>
+      <div class="kv"><span class="k">P(touch ≥ $100K in 2026)</span><span class="v" id="v-p100">—</span></div>
+      <div class="kv"><span class="k">P(fall ≤ $50K in 2026)</span><span class="v" id="v-p50">—</span></div>
+      <div class="kv"><span class="k" title="Mode of the market-implied distribution of the highest price touched in 2026">Implied mode · 2026 high</span><span class="v" id="v-pmode">—</span></div>
+      <div class="kv"><span class="k" title="10th–90th percentile of the 2026-high distribution (threshold markets, PAVA-monotonized)">P10 – P90 · 2026 high</span><span class="v" id="v-pband">—</span></div>
+      <div class="kv"><span class="k">Contract volume</span><span class="v" id="v-pvol">—</span></div>
+      <button class="sparkrow" data-h="poly_p100" hidden aria-label="P over 100K history"><span class="sl">P(≥100K)</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src">cache · Polymarket · hourly</div>
+    </div>
+
+    <div class="card">
+      <h3>Attention &amp; regional bid</h3>
+      <div class="kv"><span class="k">Google Trends “bitcoin” (0–100)</span><span class="v" id="v-gtrends">—</span></div>
+      <div class="kv"><span class="k" title="Coinbase price vs global average">Coinbase premium</span><span class="v" id="v-cbprem">—</span></div>
+      <button class="sparkrow" data-h="gtrends" hidden aria-label="Search interest history"><span class="sl">Search</span><canvas></canvas><span class="sx">⤢</span></button>
+      <button class="sparkrow" data-h="cb_prem" hidden aria-label="Coinbase premium history"><span class="sl">CB premium</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src">cache · weekly</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ MACRO ============ -->
+<section class="band" id="macro">
+  <div class="band-head"><h2>Macro</h2><span class="rule"></span></div>
+  <div class="grid">
+
+    <div class="card">
+      <h3>Money supply</h3>
+      <div class="kv"><span class="k">US M2 · YoY</span><span class="v" id="v-m2">—</span></div>
+      <button class="sparkrow" data-h="m2_yoy" hidden aria-label="M2 growth history"><span class="sl">M2 YoY</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src">cache · FRED · monthly</div>
+    </div>
+
+    <div class="card" style="grid-column:span 1">
+      <h3>Cross-asset correlation</h3>
+      <div class="scroll-x"><table aria-label="BTC correlations">
+        <thead><tr><th>Corr. of daily returns</th><th>30d</th><th>90d</th><th>180d</th><th>1y</th></tr></thead>
+        <tbody>
+          <tr><td>Gold (GLD)</td><td id="c-gld-30">—</td><td id="c-gld-90">—</td><td id="c-gld-180">—</td><td id="c-gld-365">—</td></tr>
+          <tr><td>Nasdaq-100 (QQQ)</td><td id="c-qqq-30">—</td><td id="c-qqq-90">—</td><td id="c-qqq-180">—</td><td id="c-qqq-365">—</td></tr>
+        </tbody>
+      </table></div>
+      <button class="sparkrow" data-h="corr_gld" hidden aria-label="Rolling gold correlation history"><span class="sl">90d · GLD</span><canvas></canvas><span class="sx">⤢</span></button>
+      <button class="sparkrow" data-h="corr_qqq" hidden aria-label="Rolling Nasdaq correlation history"><span class="sl">90d · QQQ</span><canvas></canvas><span class="sx">⤢</span></button>
+      <div class="src">cache · stooq + Binance · weekly</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ MINERS ============ -->
+<section class="band" id="miners">
+  <div class="band-head"><h2>Miner Economics</h2><span class="rule"></span></div>
+  <div class="card" style="gap:14px">
+    <div class="elec">
+      <label for="elec-rate">Electricity</label>
+      <input type="range" id="elec-rate" min="0.02" max="0.14" step="0.005" value="0.060">
+      <span class="val" id="elec-val">$0.060/kWh</span>
+      <span class="hd-spacer"></span>
+      <span class="badge">Profitable: <b id="v-rigs-ok">—</b></span>
+      <span class="badge">Shutdown range: <b id="v-shut-range">—</b></span>
+    </div>
+    <div class="pcts">
+      <span class="pct"><b>P25</b><span id="p25">—</span></span>
+      <span class="pct"><b>P50</b><span id="p50">—</span></span>
+      <span class="pct"><b>P75</b><span id="p75">—</span></span>
+      <span class="pct"><b>P90</b><span id="p90">—</span></span>
+    </div>
+    <div class="scroll-x"><table id="rig-table" aria-label="Miner shutdown prices">
+      <thead><tr><th>Rig</th><th>Hashrate</th><th>Power</th><th>J/TH</th><th>Shutdown</th><th>Status</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <div class="src">Shutdown = daily electricity cost ÷ daily BTC mined at current network hashrate · fees excluded · nameplate specs</div>
+  </div>
+</section>
+
+<!-- ============ STRATEGY ============ -->
+<section class="band" id="strategy" style="border-bottom:0">
+  <div class="band-head"><h2>Strategy / MSTR</h2><span class="rule"></span></div>
+  <div class="grid">
+    <div class="card">
+      <h3>mNAV &amp; holdings</h3>
+      <div class="kv"><span class="k" title="Market value ÷ net asset value, enterprise-value basis">mNAV · EV basis</span><span class="v" id="v-mnav">—</span></div>
+      <div class="kv"><span class="k">mNAV · basic</span><span class="v" id="v-mnav-b">—</span></div>
+      <div class="kv"><span class="k">BTC holdings</span><span class="v" id="v-mstr-btc">—</span></div>
+      <div class="kv"><span class="k">STRC price · par $100</span><span class="v" id="v-strc">—</span></div>
+      <div class="src">cache · EDGAR 8-K + quotes</div>
+    </div>
+    <div class="card">
+      <h3>Financing runway</h3>
+      <div class="kv"><span class="k">USD reserve</span><span class="v" id="v-usd-res">—</span></div>
+      <div class="kv"><span class="k">Global runway (div + interest)</span><span class="v" id="v-runway">—</span></div>
+      <div class="kv"><span class="k">STRC ATM remaining</span><span class="v" id="v-atm">—</span></div>
+      <div class="kv"><span class="k">Flywheel health</span><span class="v" id="v-fly">—</span></div>
+      <div class="src">cache · EDGAR 8-K · weekly</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="src-line">Live: CoinGecko / Binance · mempool.space · alternative.me · DeFiLlama · Deribit — Cached via pipeline: Farside · Polymarket · FRED · stooq · EDGAR · on-chain vendor or manual. Data as of <span id="v-asof">—</span>.</div>
+    <div style="margin-top:8px">Research dashboard. Not investment advice.</div>
+  </div>
+</footer>
+
+<!-- ============ HISTORY MODAL ============ -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <div class="mpanel">
+    <div class="mhd">
+      <h3 id="m-title">—</h3>
+      <div class="ranges" id="m-ranges">
+        <button data-r="3M">3M</button><button data-r="1Y" class="on">1Y</button><button data-r="MAX">MAX</button>
+      </div>
+      <button class="mclose" id="m-close">Close ✕</button>
+    </div>
+    <canvas id="mcanvas"></canvas>
+    <div class="mfoot"><span id="m-span">—</span><span id="m-minmax">—</span></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BTC Desk — client logic
+   Live layer : CoinGecko/Binance, mempool.space, alternative.me,
+                DeFiLlama, Deribit (all try/catch, graceful fallback)
+   Cached layer: data/metrics.json written by pipeline.py
+   History     : HIST[key] = [[ms, value], ...]  → sparklines + modal
+   ============================================================ */
+"use strict";
+const $=id=>document.getElementById(id);
+const set=(id,txt,cls)=>{const el=$(id);if(!el)return;el.textContent=txt;if(cls!==undefined)el.className=el.className.replace(/\bdelta-(up|dn)\b/g,"").trim()+(cls?" "+cls:"");};
+const clamp01=x=>Math.max(0,Math.min(1,x));
+const fmt$=(x,d=0)=>x==null?"—":"$"+Number(x).toLocaleString("en-US",{maximumFractionDigits:d,minimumFractionDigits:d});
+const fmtBig=x=>{if(x==null)return"—";const a=Math.abs(x);const s=x<0?"−":"+";
+  if(a>=1e9)return s+"$"+(a/1e9).toFixed(2)+"B";if(a>=1e6)return s+"$"+(a/1e6).toFixed(0)+"M";return s+"$"+a.toLocaleString();};
+const fmtBigU=x=>{if(x==null)return"—";const a=Math.abs(x);
+  if(a>=1e9)return"$"+(a/1e9).toFixed(1)+"B";if(a>=1e6)return"$"+(a/1e6).toFixed(0)+"M";return"$"+a.toLocaleString();};
+const fmtPct=(x,d=1,sign=true)=>x==null?"—":((sign&&x>0?"+":"")+x.toFixed(d)+"%");
+const fmtBTC=x=>x==null?"—":Math.round(x).toLocaleString("en-US");
+const fmtDate=ms=>new Date(ms).toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"});
+
+/* ---------------- history registry ---------------- */
+const HIST={};
+const HMETA={
+ price:{l:"BTC / USD",u:"usd",overlay:"dma200",ol:"200-day MA"},
+ dma200:{l:"200-day MA",u:"usd"},
+ mayer:{l:"Mayer multiple",u:"x"},
+ wma200:{l:"200-week MA",u:"usd"},
+ wma200x:{l:"Price / 200-week MA",u:"x"},
+ ahr999:{l:"ahr999 index",u:"num"},
+ fng:{l:"Fear & Greed",u:"int"},
+ hashrate:{l:"Network hashrate",u:"eh"},
+ funding:{l:"Perp funding · annualized",u:"pct",zero:1},
+ dvol:{l:"DVOL · 30-day implied vol",u:"num"},
+ stables:{l:"Stablecoin market cap",u:"usdB"},
+ ssr:{l:"Stablecoin supply ratio",u:"num"},
+ etf_flow:{l:"ETF daily net flow",u:"usdB",zero:1,bars:1},
+ etf_cum:{l:"ETF cumulative net flow",u:"usdB"},
+ m2_yoy:{l:"US M2 · YoY",u:"pct",zero:1},
+ corr_gld:{l:"90-day correlation · GLD",u:"num",zero:1},
+ corr_qqq:{l:"90-day correlation · QQQ",u:"num",zero:1},
+ mvrv:{l:"MVRV",u:"num"}, mvrv_z:{l:"MVRV Z-score",u:"num",zero:1},
+ nupl:{l:"NUPL",u:"num",zero:1}, sopr:{l:"SOPR",u:"num"}, puell:{l:"Puell multiple",u:"num"},
+ sth_cb:{l:"STH cost basis",u:"usd"},
+ reserves:{l:"Exchange reserves",u:"mbtc"}, lth:{l:"Long-term holder supply",u:"mbtc"},
+ poly_p100:{l:"P(touch ≥ $100K in 2026)",u:"pct01"}, poly_p50:{l:"P(fall ≤ $50K in 2026)",u:"pct01"},
+ gtrends:{l:"Search interest · bitcoin",u:"int"}, cb_prem:{l:"Coinbase premium",u:"pct",zero:1},
+};
+function fmtV(u,v){switch(u){
+  case"usd":return fmt$(v,v<10?2:0);
+  case"usdB":return (v<0?"−":"")+ (Math.abs(v)>=1e9?"$"+(Math.abs(v)/1e9).toFixed(2)+"B":"$"+(Math.abs(v)/1e6).toFixed(0)+"M");
+  case"pct":return fmtPct(v);
+  case"pct01":return (v*100).toFixed(1)+"%";
+  case"x":return v.toFixed(2)+"×";
+  case"int":return String(Math.round(v));
+  case"eh":return v.toFixed(0)+" EH/s";
+  case"mbtc":return (v/1e6).toFixed(2)+"M BTC";
+  default:return Math.abs(v)>=100?v.toFixed(0):v.toFixed(2);}}
+
+function reg(key,series){
+  if(!series)return;
+  series=series.filter(p=>p&&p[1]!=null&&isFinite(p[1])).sort((a,b)=>a[0]-b[0]);
+  if(series.length<2)return;
+  HIST[key]=series;
+  document.querySelectorAll('[data-h="'+key+'"]').forEach(el=>{
+    const row=el.closest(".sparkrow");if(row)row.hidden=false;
+    if(el.classList&&el.classList.contains("fspark"))el.classList.add("on");
+    const cv=el.tagName==="CANVAS"?el:el.querySelector("canvas");
+    if(cv)drawSpark(cv,key);
+  });
+  if(MODAL.key===key&&$("modal").classList.contains("open"))drawModal();
+}
+
+/* ---------------- canvas drawing ---------------- */
+function sizeCanvas(cv){
+  const dpr=window.devicePixelRatio||1;
+  const w=cv.clientWidth||(cv.parentElement?cv.parentElement.clientWidth:300)||300;
+  const h=cv.clientHeight||34;
+  cv.width=Math.max(20,Math.round(w*dpr));cv.height=Math.max(16,Math.round(h*dpr));
+  return {ctx:cv.getContext("2d"),W:cv.width,H:cv.height,dpr};
+}
+function drawSpark(cv,key){
+  const s=HIST[key];if(!s||s.length<2)return;
+  const m=HMETA[key]||{};
+  const c=sizeCanvas(cv);if(!c.ctx)return;
+  const {ctx,W,H,dpr}=c;ctx.clearRect(0,0,W,H);
+  const vs=s.map(p=>p[1]);let lo=Math.min(...vs),hi=Math.max(...vs);
+  if(m.zero){lo=Math.min(lo,0);hi=Math.max(hi,0);}
+  if(hi===lo){hi+=1;lo-=1;}
+  const X=i=>i/(s.length-1)*(W-2)+1, Y=v=>H-2-(v-lo)/(hi-lo)*(H-4);
+  if(m.zero){ctx.strokeStyle="rgba(133,152,164,.35)";ctx.lineWidth=dpr;
+    ctx.beginPath();ctx.moveTo(0,Y(0));ctx.lineTo(W,Y(0));ctx.stroke();}
+  if(m.bars){
+    const bw=Math.max(dpr,(W/s.length)*.7);
+    s.forEach((p,i)=>{const y=Y(p[1]),y0=Y(0);
+      ctx.fillStyle=p[1]>=0?"#4FB3A7":"#D2695E";
+      ctx.fillRect(X(i)-bw/2,Math.min(y,y0),bw,Math.max(dpr,Math.abs(y0-y)));});
+  }else{
+    ctx.lineWidth=1.4*dpr;ctx.strokeStyle="#4FB3A7";ctx.beginPath();
+    s.forEach((p,i)=>{i?ctx.lineTo(X(i),Y(p[1])):ctx.moveTo(X(i),Y(p[1]))});ctx.stroke();
+    ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();
+    ctx.fillStyle="rgba(79,179,167,.07)";ctx.fill();
+  }
+}
+
+/* ---------------- history modal ---------------- */
+const MODAL={key:null,range:"1Y",mx:null};
+function sliceRange(s,r){
+  if(r==="MAX")return s;
+  const days=r==="3M"?90:365;
+  const cut=Date.now()-days*864e5;
+  const out=s.filter(p=>p[0]>=cut);
+  return out.length>=2?out:s;
+}
+function openModal(key){
+  if(!HIST[key])return;
+  MODAL.key=key;MODAL.mx=null;
+  const s=HIST[key];
+  const span=s[s.length-1][0]-s[0][0];
+  MODAL.range=span<120*864e5?"MAX":"1Y";
+  document.querySelectorAll("#m-ranges button").forEach(b=>b.classList.toggle("on",b.dataset.r===MODAL.range));
+  $("m-title").textContent=(HMETA[key]||{}).l||key;
+  $("modal").classList.add("open");
+  drawModal();
+  $("m-close").focus();
+}
+function closeModal(){$("modal").classList.remove("open");MODAL.key=null;}
+function drawModal(){
+  const key=MODAL.key;if(!key)return;
+  const m=HMETA[key]||{};
+  const s=sliceRange(HIST[key],MODAL.range);
+  const cv=$("mcanvas");const c=sizeCanvas(cv);if(!c.ctx)return;
+  const {ctx,W,H,dpr}=c;ctx.clearRect(0,0,W,H);
+  const padR=64*dpr,padB=6*dpr,padT=8*dpr;
+  const ov=m.overlay&&HIST[m.overlay]?sliceRange(HIST[m.overlay],MODAL.range):null;
+  let vs=s.map(p=>p[1]);if(ov)vs=vs.concat(ov.map(p=>p[1]));
+  let lo=Math.min(...vs),hi=Math.max(...vs);
+  if(m.zero){lo=Math.min(lo,0);hi=Math.max(hi,0);}
+  if(hi===lo){hi+=1;lo-=1;}
+  const t0=s[0][0],t1=s[s.length-1][0]||t0+1;
+  const X=t=>(t-t0)/(t1-t0)*(W-padR-2)+1, Y=v=>H-padB-(v-lo)/(hi-lo)*(H-padT-padB);
+  ctx.font=(10*dpr)+"px 'IBM Plex Mono',monospace";
+  for(let g=0;g<4;g++){const v=lo+(hi-lo)*g/3,y=Y(v);
+    ctx.strokeStyle="rgba(34,48,56,.9)";ctx.lineWidth=dpr;
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W-padR,y);ctx.stroke();
+    ctx.fillStyle="#5C6C77";ctx.fillText(fmtV(m.u,v),W-padR+6*dpr,y+3*dpr);}
+  if(m.zero&&lo<0&&hi>0){ctx.strokeStyle="rgba(133,152,164,.5)";
+    ctx.beginPath();ctx.moveTo(0,Y(0));ctx.lineTo(W-padR,Y(0));ctx.stroke();}
+  if(ov){ctx.strokeStyle="#8598A4";ctx.setLineDash([4*dpr,4*dpr]);ctx.lineWidth=1.2*dpr;ctx.beginPath();
+    ov.forEach((p,i)=>{i?ctx.lineTo(X(p[0]),Y(p[1])):ctx.moveTo(X(p[0]),Y(p[1]))});ctx.stroke();ctx.setLineDash([]);}
+  if(m.bars){
+    const bw=Math.max(dpr,(W-padR)/s.length*.7);
+    s.forEach(p=>{const y=Y(p[1]),y0=Y(0);
+      ctx.fillStyle=p[1]>=0?"#4FB3A7":"#D2695E";
+      ctx.fillRect(X(p[0])-bw/2,Math.min(y,y0),bw,Math.max(dpr,Math.abs(y0-y)));});
+  }else{
+    ctx.lineWidth=1.8*dpr;ctx.strokeStyle="#4FB3A7";ctx.beginPath();
+    s.forEach((p,i)=>{i?ctx.lineTo(X(p[0]),Y(p[1])):ctx.moveTo(X(p[0]),Y(p[1]))});ctx.stroke();
+    ctx.lineTo(X(s[s.length-1][0]),H-padB);ctx.lineTo(X(s[0][0]),H-padB);ctx.closePath();
+    ctx.fillStyle="rgba(79,179,167,.07)";ctx.fill();
+  }
+  /* crosshair */
+  if(MODAL.mx!=null){
+    let bi=0,bd=Infinity;
+    s.forEach((p,i)=>{const d=Math.abs(X(p[0])-MODAL.mx);if(d<bd){bd=d;bi=i;}});
+    const p=s[bi],x=X(p[0]),y=Y(p[1]);
+    ctx.strokeStyle="rgba(220,229,234,.4)";ctx.lineWidth=dpr;
+    ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,H-padB);ctx.stroke();
+    ctx.fillStyle="#DCE5EA";ctx.beginPath();ctx.arc(x,y,3*dpr,0,7);ctx.fill();
+    const label=fmtDate(p[0])+" · "+fmtV(m.u,p[1]);
+    ctx.font=(11*dpr)+"px 'IBM Plex Mono',monospace";
+    const tw=ctx.measureText(label).width;
+    const lx=Math.min(Math.max(4*dpr,x-tw/2),W-padR-tw-4*dpr);
+    ctx.fillStyle="rgba(12,17,22,.85)";ctx.fillRect(lx-4*dpr,padT,tw+8*dpr,16*dpr);
+    ctx.fillStyle="#DCE5EA";ctx.fillText(label,lx,padT+12*dpr);
+  }
+  const vsOnly=s.map(p=>p[1]);
+  $("m-span").textContent=fmtDate(t0)+" — "+fmtDate(s[s.length-1][0])+" · "+s.length+" pts"+(ov?" · dashed = "+m.ol:"");
+  $("m-minmax").textContent="min "+fmtV(m.u,Math.min(...vsOnly))+" · max "+fmtV(m.u,Math.max(...vsOnly))+" · last "+fmtV(m.u,vsOnly[vsOnly.length-1]);
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-h]");
+  if(t&&HIST[t.dataset.h]){openModal(t.dataset.h);return;}
+  if(e.target===$("modal"))closeModal();
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape")closeModal();
+  const t=e.target.closest&&e.target.closest(".fspark");
+  if(t&&(e.key==="Enter"||e.key===" ")&&HIST[t.dataset.h]){e.preventDefault();openModal(t.dataset.h);}
+});
+$("m-close").addEventListener("click",closeModal);
+document.querySelectorAll("#m-ranges button").forEach(b=>b.addEventListener("click",e=>{
+  e.stopPropagation();MODAL.range=b.dataset.r;
+  document.querySelectorAll("#m-ranges button").forEach(x=>x.classList.toggle("on",x===b));
+  drawModal();
+}));
+$("mcanvas").addEventListener("pointermove",e=>{
+  const r=e.target.getBoundingClientRect();
+  MODAL.mx=(e.clientX-r.left)*(window.devicePixelRatio||1);drawModal();
+});
+$("mcanvas").addEventListener("pointerleave",()=>{MODAL.mx=null;drawModal();});
+let rT;window.addEventListener("resize",()=>{clearTimeout(rT);rT=setTimeout(()=>{
+  Object.keys(HIST).forEach(k=>document.querySelectorAll('[data-h="'+k+'"]').forEach(el=>{
+    const cv=el.tagName==="CANVAS"?el:el.querySelector("canvas");if(cv)drawSpark(cv,k);}));
+  if($("modal").classList.contains("open"))drawModal();
+},150);});
+
+/* ---------------- SAMPLE cache (rendered until data/metrics.json loads) ---- */
+const SAMPLE={
+ as_of:"2026-08-25 (sample figures — run pipeline.py)", sample:true,
+ tier1:{exchange_reserves_btc:2210000, exchange_netflow_30d_btc:-38000,
+  lth_supply_btc:15260000, lth_npc_30d_btc:21000,
+  wma200_usd:55400, balanced_price_usd:41800,
+  poly_p_ge_100k:0.295, poly_p_le_50k:0.145, poly_mode_usd:88000,
+  poly_p10_usd:88000, poly_p90_usd:135000, poly_volume_usd:54600000},
+ tier2:{etf_flow_last_usd:212e6, etf_flow_5d_usd:640e6, etf_streak_days:4,
+  etf_cum_usd:51.8e9, funding_last_ann_pct:3.8, funding_30d_ann_pct:4.7,
+  funding_neg_streak_days:0, basis_ann_pct:5.2, dvol:48.0, rr25:-2.1,
+  sth_cost_basis_usd:84600,
+  urpd_clusters:[{price:86900,pct:6.8},{price:74500,pct:5.1},{price:63800,pct:4.4}]},
+ tier3:{mvrv:1.27, mvrv_z:0.42, nupl:0.12, sopr:1.01, puell:0.62, psip_pct:57,
+  ssr:null, coinbase_premium_pct:0.08, gtrends:21, m2_yoy_pct:4.6,
+  corr:{gld:{d30:0.18,d90:0.24,d180:0.31,d365:0.28}, qqq:{d30:0.42,d90:0.47,d180:0.52,d365:0.55}}},
+ strategy:{mnav_ev:1.040, mnav_basic:0.722, btc_holdings:840447, strc_price:95.01,
+  usd_reserve_usd:4.65e9, strc_atm_remaining_usd:17511e6, global_runway_months:31.3, flywheel_health:60}
+};
+let CACHE=SAMPLE;
+const S={price:null, chg:null, hashEH:null, height:null, fng:null, mayer:null,
+  supply:null, dma200:null, ahr:null, mcapSeries:null, stableSeries:null};
+
+/* ---------------- cached layer ---------------- */
+const toMs=t=>typeof t==="number"?(t<3e10?t*1000:t):Date.parse(t);
+async function loadCache(){
+  try{
+    const r=await fetch("data/metrics.json",{cache:"no-store"});
+    if(r.ok){const j=await r.json();
+      CACHE={...SAMPLE,...j,
+        tier1:{...SAMPLE.tier1,...(j.tier1||{})}, tier2:{...SAMPLE.tier2,...(j.tier2||{})},
+        tier3:{...SAMPLE.tier3,...(j.tier3||{})}, strategy:{...SAMPLE.strategy,...(j.strategy||{})}};
+      if(!CACHE.sample){$("cache-badge").textContent="CACHE: LIVE";$("cache-badge").classList.add("live");}
+    }
+  }catch(e){/* file:// or missing — sample stands */}
+  renderCache();
+  const h=CACHE.history||{};
+  for(const[k,arr]of Object.entries(h)){
+    if(!Array.isArray(arr))continue;
+    const s=arr.map(p=>[toMs(p[0]),+p[1]]);
+    if(k==="etf_flow"){reg("etf_flow",s);
+      /* only build a cumulative when the series reaches back to the Jan 2024 launch */
+      if(s.length&&s[0][0]<=Date.parse("2024-01-16")){let c=0;reg("etf_cum",s.map(p=>[p[0],c+=p[1]]));}}
+    else reg(k,s);
+  }
+  /* live DeFiLlama unreachable? surface the cached stablecoin series */
+  if(!S.stablesLive&&HIST.stables){const st=HIST.stables;const nw=st[st.length-1];
+    const pv=(st.find(p=>p[0]>=nw[0]-30*864e5)||st[0]);
+    set("v-stables",fmtBigU(nw[1]));
+    set("v-stables-30d",fmtPct((nw[1]/pv[1]-1)*100),nw[1]>=pv[1]?"delta-up":"delta-dn");
+    set("src-stables","DeFiLlama · cached");}
+  /* live F&G unreachable? surface the cached series' last reading */
+  if(S.fng==null&&HIST.fng){const p=HIST.fng[HIST.fng.length-1];
+    S.fng=p[1];set("v-fng",Math.round(p[1]));
+    set("v-fng-label",fngLabel(p[1])+" · cached "+new Date(p[0]).toLocaleDateString("en-US",{month:"short",day:"numeric"}));
+    derived();}
+}
+function renderCache(){
+  const t1=CACHE.tier1,t2=CACHE.tier2,t3=CACHE.tier3,st=CACHE.strategy;
+  set("v-asof",CACHE.as_of||"—");
+  set("v-reserves",fmtBTC(t1.exchange_reserves_btc));
+  set("v-netflow",(t1.exchange_netflow_30d_btc>0?"+":"−")+fmtBTC(Math.abs(t1.exchange_netflow_30d_btc))+" BTC",
+      t1.exchange_netflow_30d_btc<0?"delta-up":"delta-dn");
+  set("v-lth",fmtBTC(t1.lth_supply_btc));
+  set("v-lth-npc",(t1.lth_npc_30d_btc>=0?"+":"−")+fmtBTC(Math.abs(t1.lth_npc_30d_btc))+" BTC",
+      t1.lth_npc_30d_btc>=0?"delta-up":"delta-dn");
+  set("v-wma200",fmt$(S.wma200??t1.wma200_usd));
+  set("v-bp",fmt$(t1.balanced_price_usd));
+  set("v-p100",(t1.poly_p_ge_100k*100).toFixed(1)+"%");
+  set("v-p50",(t1.poly_p_le_50k*100).toFixed(1)+"%");
+  set("v-pmode",fmt$(t1.poly_mode_usd));
+  set("v-pband",fmt$(t1.poly_p10_usd)+" – "+fmt$(t1.poly_p90_usd));
+  set("v-pvol",fmtBigU(t1.poly_volume_usd));
+  set("v-etf-last",fmtBig(t2.etf_flow_last_usd),t2.etf_flow_last_usd>=0?"delta-up":"delta-dn");
+  set("v-etf-5d",fmtBig(t2.etf_flow_5d_usd),t2.etf_flow_5d_usd>=0?"delta-up":"delta-dn");
+  set("v-etf-streak",Math.abs(t2.etf_streak_days)+"d "+(t2.etf_streak_days>=0?"inflow":"outflow"));
+  set("v-etf-cum",fmtBigU(t2.etf_cum_usd));
+  if(!S.fundLive){
+    set("v-fund-last",fmtPct(t2.funding_last_ann_pct));
+    set("v-fund-30d",fmtPct(t2.funding_30d_ann_pct));
+    set("v-fund-streak",t2.funding_neg_streak_days+" days");
+  }
+  if(!S.basisLive)set("v-basis",fmtPct(t2.basis_ann_pct));
+  if(!S.dvolLive)set("v-dvol",t2.dvol==null?"—":t2.dvol.toFixed(1));
+  if(!S.stablesLive&&t3.ssr!=null)set("v-ssr",t3.ssr.toFixed(2));
+  set("v-rr25",t2.rr25==null?"—":fmtPct(t2.rr25));
+  set("v-sthcb",fmt$(t2.sth_cost_basis_usd));
+  const ub=$("urpd-bars");ub.innerHTML="";
+  const mx=Math.max(...t2.urpd_clusters.map(c=>c.pct));
+  t2.urpd_clusters.forEach(c=>{const d=document.createElement("div");d.className="bar";
+    d.innerHTML='<span>'+fmt$(c.price)+'</span><span class="tr"><i style="width:'+(c.pct/mx*100)+'%"></i></span><span class="pc">'+c.pct.toFixed(1)+'%</span>';
+    ub.appendChild(d);});
+  set("v-mvrv",t3.mvrv?.toFixed(2)??"—"); set("v-mvrvz",t3.mvrv_z?.toFixed(2)??"—");
+  set("v-nupl",t3.nupl?.toFixed(2)??"—"); set("v-sopr",t3.sopr?.toFixed(3)??"—");
+  set("v-puell",t3.puell?.toFixed(2)??"—"); set("v-psip",t3.psip_pct?.toFixed(0)+"%");
+  set("v-cbprem",t3.coinbase_premium_pct==null?"—":fmtPct(t3.coinbase_premium_pct,2));
+  set("v-gtrends",t3.gtrends??"—");
+  set("v-m2",fmtPct(t3.m2_yoy_pct));
+  const C=t3.corr||{};["gld","qqq"].forEach(a=>{["30","90","180","365"].forEach(w=>{
+    const v=C[a]?.["d"+w];set("c-"+a+"-"+w,v==null?"—":v.toFixed(2));});});
+  set("v-mnav",st.mnav_ev?.toFixed(3)+"×"); set("v-mnav-b",st.mnav_basic?.toFixed(3)+"×");
+  set("v-mstr-btc",fmtBTC(st.btc_holdings)+" BTC"); set("v-strc",fmt$(st.strc_price,2));
+  set("v-usd-res",fmtBigU(st.usd_reserve_usd)); set("v-runway",st.global_runway_months?.toFixed(1)+" mo");
+  set("v-atm",fmtBigU(st.strc_atm_remaining_usd)); set("v-fly",st.flywheel_health+" / 100");
+  derived();
+}
+
+/* ---------------- live layer ---------------- */
+async function fetchPrice(){
+  try{const r=await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true");
+    const j=await r.json();S.price=j.bitcoin.usd;S.chg=j.bitcoin.usd_24h_change;
+    set("v-price-src","coingecko");}
+  catch(e){try{
+    const r=await fetch("https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT");
+    const j=await r.json();S.price=+j.lastPrice;S.chg=+j.priceChangePercent;
+    set("v-price-src","binance");}
+  catch(e2){set("v-price-src","offline — enable network / deploy");}}
+  if(S.price){set("v-price",fmt$(S.price));
+    set("v-price-chg",fmtPct(S.chg,2),S.chg>=0?"delta-up":"delta-dn");}
+  derived();
+}
+
+function computeTrend(px){ /* px = [[ms, close], ...] daily ascending */
+  if(px.length<220)return;
+  const closes=px.map(p=>p[1]);
+  const n=closes.length,last=closes[n-1];
+  /* prefix sums for O(n) rolling windows */
+  const cs=[0],cl=[0];
+  for(let i=0;i<n;i++){cs.push(cs[i]+closes[i]);cl.push(cl[i]+Math.log(closes[i]));}
+  const sma=i=>(cs[i+1]-cs[i-199])/200;         /* valid for i>=199 */
+  const gm =i=>Math.exp((cl[i+1]-cl[i-199])/200);
+  S.dma200=sma(n-1);S.mayer=last/S.dma200;
+  const model=t=>Math.pow(10,5.84*Math.log10((t-Date.parse("2009-01-03T00:00:00Z"))/864e5)-17.01);
+  S.ahr=(last/gm(n-1))*(last/model(px[n-1][0]));
+  const r30=(last/closes[n-31]-1)*100, r90=(last/closes[n-91]-1)*100;
+  let below=0;for(let i=n-1;i>=199;i--){if(closes[i]<sma(i))below++;else break;}
+  const dmaS=[],mayS=[],ahrS=[];
+  for(let i=199;i<n;i++){const s=sma(i);
+    dmaS.push([px[i][0],s]);mayS.push([px[i][0],closes[i]/s]);
+    ahrS.push([px[i][0],(closes[i]/gm(i))*(closes[i]/model(px[i][0]))]);}
+  reg("price",px);reg("dma200",dmaS);reg("mayer",mayS);reg("ahr999",ahrS);
+  set("v-mayer",S.mayer.toFixed(2)+"×");
+  set("v-dma200",fmt$(S.dma200));
+  set("v-mom30",fmtPct(r30),r30>=0?"delta-up":"delta-dn");
+  set("v-mom90",fmtPct(r90),r90>=0?"delta-up":"delta-dn");
+  set("v-below200",below+" days");
+  const reg_=$("v-regime");
+  if(below>=30){reg_.textContent="REGIME: BEAR (30d+ under 200DMA)";reg_.className="regime bear";}
+  else if(S.mayer>=1){reg_.textContent="REGIME: BULL (above 200DMA)";reg_.className="regime bull";}
+  else{reg_.textContent="REGIME: TRANSITION ("+below+"d under 200DMA)";reg_.className="regime neutral";}
+  set("v-ahr999",S.ahr.toFixed(2));
+  $("ahr-meter").style.width=(clamp01(S.ahr/2.4)*100)+"%";
+  $("ahr-meter").style.background=S.ahr<0.45?"var(--acc)":(S.ahr<1.2?"#7C8DA6":"var(--amber)");
+  derived();
+}
+async function fetchDaily(){
+  try{ /* ~2.7y of daily closes in one call */
+    const j=await (await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=1000")).json();
+    if(Array.isArray(j)&&j.length>220){
+      computeTrend(j.map(k=>[k[0],+k[4]]));set("src-trend","binance · live · "+j.length+"d");return;}
+    throw 0;
+  }catch(e){}
+  try{ /* fallback: 1y */
+    const j=await (await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily")).json();
+    computeTrend(j.prices);set("src-trend","coingecko · live · 365d");
+    if(j.market_caps){S.mcapSeries=j.market_caps;trySSRHist();}
+  }catch(e){/* cached anchors still shown */}
+}
+async function fetchCaps(){ /* BTC mcap series for SSR history */
+  try{const j=await (await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily")).json();
+    if(j.market_caps){S.mcapSeries=j.market_caps;trySSRHist();}
+  }catch(e){}
+}
+async function fetchWeekly(){
+  try{const j=await (await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1w&limit=1000")).json();
+    if(!Array.isArray(j)||j.length<210)return;
+    const wk=j.map(k=>[k[0],+k[4]]);
+    const cs=[0];wk.forEach((p,i)=>cs.push(cs[i]+p[1]));
+    const wS=[],xS=[];
+    for(let i=199;i<wk.length;i++){const m=(cs[i+1]-cs[i-199])/200;
+      wS.push([wk[i][0],m]);xS.push([wk[i][0],wk[i][1]/m]);}
+    const cur=wS[wS.length-1][1];
+    S.wma200=cur;set("v-wma200",fmt$(cur));CACHE.tier1.wma200_usd=cur;
+    reg("wma200",wS);reg("wma200x",xS);
+    set("src-anchors","binance weekly · live");
+    derived();
+  }catch(e){}
+}
+async function fetchNetwork(){
+  try{const h=await (await fetch("https://mempool.space/api/blocks/tip/height")).text();
+    S.height=+h;
+    const rem=1050000-S.height;
+    set("v-height","block "+S.height.toLocaleString());
+    set("v-halving",Math.round(rem*10/1440).toLocaleString()+" days");
+    set("v-halving-date",new Date(Date.now()+rem*600000).toLocaleDateString("en-US",{year:"numeric",month:"short"}));
+    S.supply=19687500+Math.max(0,S.height-840000)*3.125;
+  }catch(e){}
+  try{const j=await (await fetch("https://mempool.space/api/v1/mining/hashrate/3d")).json();
+    S.hashEH=j.currentHashrate/1e18;
+    set("v-hash",S.hashEH.toFixed(0)+" EH/s");
+  }catch(e){}
+  miners();derived();
+}
+async function fetchHashHist(){
+  try{const j=await (await fetch("https://mempool.space/api/v1/mining/hashrate/1y")).json();
+    const s=(j.hashrates||[]).map(p=>[p.timestamp*1000,p.avgHashrate/1e18]);
+    reg("hashrate",s);
+    if(!S.hashEH&&s.length){S.hashEH=s[s.length-1][1];set("v-hash",S.hashEH.toFixed(0)+" EH/s");miners();}
+  }catch(e){}
+}
+const fngLabel=v=>v<25?"Extreme Fear":v<47?"Fear":v<55?"Neutral":v<76?"Greed":"Extreme Greed";
+async function fetchFng(){
+  try{const j=await (await fetch("https://api.alternative.me/fng/?limit=0")).json();
+    const d=j.data||[];
+    if(d.length){S.fng=+d[0].value;
+      set("v-fng",S.fng);set("v-fng-label",d[0].value_classification);
+      reg("fng",d.map(x=>[+x.timestamp*1000,+x.value]));}
+  }catch(e){}
+  derived();
+}
+function trySSRHist(){
+  if(!S.mcapSeries||!S.stableSeries)return;
+  const sm=new Map(S.stableSeries.map(p=>[Math.round(p[0]/864e5),p[1]]));
+  const out=[];
+  S.mcapSeries.forEach(p=>{const d=Math.round(p[0]/864e5);
+    const st=sm.get(d)??sm.get(d-1);if(st)out.push([p[0],p[1]/st]);});
+  reg("ssr",out);
+}
+async function fetchStables(){
+  try{const j=await (await fetch("https://stablecoins.llama.fi/stablecoincharts/all")).json();
+    const s=j.map(x=>[+x.date*1000,x.totalCirculatingUSD?.peggedUSD]).filter(p=>p[1]);
+    if(!s.length)throw 0;
+    const now=s[s.length-1][1];
+    const prev=(s.find(p=>p[0]>=s[s.length-1][0]-30*864e5)||s[0])[1];
+    S.stablesLive=true;
+    set("v-stables",fmtBigU(now));
+    set("v-stables-30d",fmtPct((now/prev-1)*100),now>=prev?"delta-up":"delta-dn");
+    set("src-stables","DeFiLlama · live");
+    reg("stables",s);S.stableSeries=s;trySSRHist();
+    if(S.price&&S.supply)set("v-ssr",((S.price*S.supply)/now).toFixed(2));
+    else if(CACHE.tier3.ssr)set("v-ssr",CACHE.tier3.ssr.toFixed(2));
+  }catch(e){}
+}
+async function fetchFunding(){
+  try{const j=await (await fetch("https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1000")).json();
+    if(!Array.isArray(j)||!j.length)throw 0;
+    const rates=j.map(x=>[+x.fundingTime,+x.fundingRate]);
+    const last=rates[rates.length-1][1]*3*365*100;
+    const w=rates.slice(-90);
+    const avg30=w.reduce((a,p)=>a+p[1],0)/w.length*3*365*100;
+    let streak=0;for(let i=rates.length-1;i>=0;i--){if(rates[i][1]<0)streak++;else break;}
+    S.fundLive=true;
+    set("v-fund-last",fmtPct(last));set("v-fund-30d",fmtPct(avg30));
+    set("v-fund-streak",Math.floor(streak/3)+" days");
+    set("src-fund","binance perp · live");
+    /* daily average annualized series */
+    const byDay=new Map();
+    rates.forEach(p=>{const d=Math.floor(p[0]/864e5);
+      const a=byDay.get(d)||[0,0];a[0]+=p[1];a[1]++;byDay.set(d,a);});
+    reg("funding",[...byDay.entries()].map(([d,a])=>[d*864e5,a[0]/a[1]*3*365*100]));
+  }catch(e){}
+}
+async function fetchDeribit(){
+  let live=false;
+  try{const end=Date.now(),start=end-365*864e5;
+    const j=await (await fetch("https://www.deribit.com/api/v2/public/get_volatility_index_data?currency=BTC&resolution=43200&start_timestamp="+start+"&end_timestamp="+end)).json();
+    const d=j.result?.data;
+    if(d&&d.length){S.dvolLive=true;set("v-dvol",d[d.length-1][4].toFixed(1));
+      reg("dvol",d.map(c=>[c[0],c[4]]));live=true;}
+  }catch(e){}
+  try{const j=await (await fetch("https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency=BTC&kind=future")).json();
+    const MON={JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+    const cands=(j.result||[]).map(f=>{const m=f.instrument_name.match(/BTC-(\d{1,2})([A-Z]{3})(\d{2})$/);
+      if(!m)return null;const exp=Date.UTC(2000+ +m[3],MON[m[2]],+m[1],8);
+      const days=(exp-Date.now())/864e5;return days>20?{days,mark:f.mark_price,idx:f.estimated_delivery_price||f.underlying_price}:null;})
+      .filter(Boolean).sort((a,b)=>a.days-b.days);
+    if(cands.length){const c=cands[0];S.basisLive=true;
+      set("v-basis",fmtPct((c.mark/c.idx-1)*(365/c.days)*100));live=true;}
+  }catch(e){}
+  if(live)set("src-deriv","Deribit · live");
+}
+
+/* ---------------- derived: composite ---------------- */
+function derived(){
+  const t3=CACHE.tier3;
+  const parts=[];
+  if(t3.mvrv_z!=null)parts.push(clamp01((t3.mvrv_z+0.5)/5.5));
+  if(t3.nupl!=null)parts.push(clamp01((t3.nupl+0.25)/1.0));
+  if(t3.sopr!=null)parts.push(clamp01((t3.sopr-0.94)/0.12));
+  if(t3.puell!=null)parts.push(clamp01((Math.log10(t3.puell)-Math.log10(0.3))/(Math.log10(4)-Math.log10(0.3))));
+  if(t3.psip_pct!=null)parts.push(clamp01((t3.psip_pct-40)/59));
+  if(S.mayer!=null)parts.push(clamp01((S.mayer-0.6)/1.8));
+  if(S.fng!=null)parts.push(S.fng/100);
+  if(parts.length<4)return;
+  const score=Math.round(parts.reduce((a,b)=>a+b,0)/parts.length*100);
+  const band=score<20?"Capitulation":score<40?"Accumulation":score<60?"Neutral":score<80?"Heated":"Euphoria";
+  set("v-composite",score);set("v-composite-label",band+" · "+parts.length+"/7 inputs");
+  set("v-composite2",score);
+  $("gauge-pin").style.left=score+"%";
+  const t1=CACHE.tier1;
+  if(S.price){
+    const w=S.wma200??t1.wma200_usd;
+    if(w)set("v-wma200x",(S.price/w).toFixed(2)+"×");
+    if(t1.balanced_price_usd)set("v-bpx",(S.price/t1.balanced_price_usd).toFixed(2)+"×");
+    if(CACHE.tier2.sth_cost_basis_usd)set("v-sthcb-x",((S.price/CACHE.tier2.sth_cost_basis_usd-1)*100>=0?"+":"")+((S.price/CACHE.tier2.sth_cost_basis_usd-1)*100).toFixed(1)+"%");
+    if(S.supply&&t1.exchange_reserves_btc)set("v-reserves-pct",(t1.exchange_reserves_btc/S.supply*100).toFixed(1)+"%");
+    if(S.supply&&t1.lth_supply_btc)set("v-lth-pct",(t1.lth_supply_btc/S.supply*100).toFixed(1)+"%");
+  }
+}
+
+/* ---------------- miners ---------------- */
+const RIGS=[
+ ["Antminer S21 XP",270,3645],["Antminer S21 Pro",234,3510],["Antminer S21",200,3500],
+ ["Whatsminer M60S",186,3441],["Whatsminer M60",172,3344],["Avalon A1466",150,3230],
+ ["Antminer S19 XP",140,3010],["Whatsminer M50",114,3306],["Antminer S19j Pro",104,3068],
+ ["Antminer S19",95,3250]];
+function miners(){
+  const rate=+$("elec-rate").value;
+  $("elec-val").textContent="$"+rate.toFixed(3)+"/kWh";
+  if(!S.hashEH)return;
+  const rows=RIGS.map(([name,th,w])=>{
+    const btcDay=th/(S.hashEH*1e6)*144*3.125;
+    const cost=w/1000*24*rate;
+    const shut=cost/btcDay;
+    return{name,th,w,jth:w/th,shut};
+  }).sort((a,b)=>a.shut-b.shut);
+  const tb=$("rig-table").querySelector("tbody");tb.innerHTML="";
+  let ok=0;
+  rows.forEach(r=>{
+    const on=S.price!=null&&S.price>r.shut;if(on)ok++;
+    const tr=document.createElement("tr");
+    tr.innerHTML="<td>"+r.name+"</td><td>"+r.th+" TH</td><td>"+r.w+" W</td><td>"+r.jth.toFixed(1)+
+      "</td><td>"+fmt$(r.shut)+"</td><td>"+(S.price==null?"—":(on?'<span class="ok">RUNNING</span>':'<span class="off">OFF</span>'))+"</td>";
+    tb.appendChild(tr);
+  });
+  set("v-rigs-ok",ok+" / "+rows.length);
+  set("v-shut-range",fmt$(rows[0].shut)+" – "+fmt$(rows[rows.length-1].shut));
+  const q=p=>{const i=(rows.length-1)*p;const lo=Math.floor(i),hi=Math.ceil(i);
+    return rows[lo].shut+(rows[hi].shut-rows[lo].shut)*(i-lo);};
+  set("p25",fmt$(q(.25)));set("p50",fmt$(q(.5)));set("p75",fmt$(q(.75)));set("p90",fmt$(q(.9)));
+}
+$("elec-rate").addEventListener("input",miners);
+
+/* ---------------- boot ---------------- */
+loadCache();
+fetchPrice();fetchDaily();fetchCaps();fetchWeekly();fetchNetwork();fetchHashHist();
+fetchFng();fetchStables();fetchFunding();fetchDeribit();
+setInterval(fetchPrice,15000);
+setInterval(fetchNetwork,120000);
+</script>
+</body>
+</html>
