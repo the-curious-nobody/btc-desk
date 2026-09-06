@@ -1,11 +1,11 @@
 {
- "as_of": "2026-09-06 19:10Z",
+ "as_of": "2026-09-06 21:20Z",
  "sample": false,
  "tier1": {
   "poly_mode_usd": 90000.0,
   "poly_p10_usd": 80000.0,
   "poly_p90_usd": 110000.0,
-  "poly_volume_usd": 63739077.32918301,
+  "poly_volume_usd": 63760828.61969001,
   "poly_p_ge_100k": 0.265,
   "poly_p_le_50k": 0.135,
   "exchange_reserves_btc": 2210000,
@@ -40,7 +40,7 @@
   "_src_urpd": "$86.9K cluster per The Block cost-basis reporting, May 2026; others estimated. Replace weekly from checkonchain URPD."
  },
  "tier3": {
-  "ssr": 5.163938438455002,
+  "ssr": 5.173220901052107,
   "gtrends": 27,
   "mvrv": 1.27,
   "mvrv_z": 0.42,
@@ -1525,11 +1525,11 @@
    ],
    [
     "2026-09-06",
-    5.160866
+    5.160677
    ],
    [
     "2026-09-06",
-    5.163938
+    5.173221
    ]
   ],
   "stables": [
@@ -11931,7 +11931,7 @@
    ],
    [
     "2026-09-06",
-    310574361326.54
+    310585750817.36
    ]
   ],
   "gtrends": [
@@ -12145,7 +12145,7 @@
    ],
    [
     "2026-08-30",
-    30.0
+    31.0
    ],
    [
     "2026-09-06",
