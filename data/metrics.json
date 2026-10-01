@@ -1,12 +1,12 @@
 {
- "as_of": "2026-10-01 18:54Z",
+ "as_of": "2026-10-01 23:12Z",
  "sample": false,
  "tier1": {
   "poly_mode_usd": 90000.0,
   "poly_p10_usd": 85000.0,
   "poly_p90_usd": 110000.0,
-  "poly_volume_usd": 72162561.53252003,
-  "poly_p_ge_100k": 0.375,
+  "poly_volume_usd": 72185179.91785601,
+  "poly_p_ge_100k": 0.36,
   "poly_p_le_50k": 0.065,
   "exchange_reserves_btc": 2210000,
   "_src_exchange_reserves": "Glassnode via media, Mar 2026 (7-yr low). Update weekly.",
@@ -40,7 +40,7 @@
   "_src_urpd": "$86.9K cluster per The Block cost-basis reporting, May 2026; others estimated. Replace weekly from checkonchain URPD."
  },
  "tier3": {
-  "ssr": 5.476718611302838,
+  "ssr": 5.475132299194616,
   "gtrends": 23,
   "mvrv": 1.27,
   "mvrv_z": 0.42,
@@ -54,10 +54,11 @@
   "_src_m2": "US M2 proxy \u2014 pipeline computes from FRED if key set; global composite is manual."
  },
  "strategy": {
+  "strc_price": 95.01,
+  "mstr_price": 160.5,
   "mnav_ev": 1.04,
   "mnav_basic": 0.722,
   "btc_holdings": 840447,
-  "strc_price": 95.01,
   "usd_reserve_usd": 4650000000,
   "strc_atm_remaining_usd": 17511000000,
   "global_runway_months": 31.3,
@@ -1524,11 +1525,11 @@
    ],
    [
     "2026-10-01",
-    5.404447
+    5.404259
    ],
    [
     "2026-10-01",
-    5.476719
+    5.475132
    ]
   ],
   "stables": [
@@ -11930,7 +11931,7 @@
    ],
    [
     "2026-10-01",
-    310692385583.92
+    310703206511.53
    ]
   ],
   "gtrends": [
@@ -11944,7 +11945,7 @@
    ],
    [
     "2025-10-12",
-    57.0
+    58.0
    ],
    [
     "2025-10-19",
@@ -11952,7 +11953,7 @@
    ],
    [
     "2025-10-26",
-    42.0
+    41.0
    ],
    [
     "2025-11-02",
@@ -11976,7 +11977,7 @@
    ],
    [
     "2025-12-07",
-    46.0
+    45.0
    ],
    [
     "2025-12-14",
@@ -12068,7 +12069,7 @@
    ],
    [
     "2026-05-17",
-    34.0
+    33.0
    ],
    [
     "2026-05-24",
@@ -12076,7 +12077,7 @@
    ],
    [
     "2026-05-31",
-    47.0
+    48.0
    ],
    [
     "2026-06-07",
@@ -12128,7 +12129,7 @@
    ],
    [
     "2026-08-30",
-    35.0
+    34.0
    ],
    [
     "2026-09-06",
@@ -22688,7 +22689,7 @@
    ],
    [
     "2026-10-01",
-    0.375
+    0.36
    ]
   ],
   "poly_p50": [
