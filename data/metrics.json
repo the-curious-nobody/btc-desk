@@ -1,13 +1,13 @@
 {
- "as_of": "2026-11-13 16:22Z",
+ "as_of": "2026-11-13 22:37Z",
  "sample": false,
  "tier1": {
   "poly_mode_usd": 90000.0,
   "poly_p10_usd": 85000.0,
   "poly_p90_usd": 90000.0,
-  "poly_volume_usd": 86009717.22362098,
-  "poly_p_ge_100k": 0.0295,
-  "poly_p_le_50k": 0.1085,
+  "poly_volume_usd": 86092357.92779599,
+  "poly_p_ge_100k": 0.0345,
+  "poly_p_le_50k": 0.0955,
   "exchange_reserves_btc": 2210000,
   "_src_exchange_reserves": "Glassnode via media, Mar 2026 (7-yr low). Update weekly.",
   "exchange_netflow_30d_btc": -38000,
@@ -40,8 +40,7 @@
   "_src_urpd": "$86.9K cluster per The Block cost-basis reporting, May 2026; others estimated. Replace weekly from checkonchain URPD."
  },
  "tier3": {
-  "ssr": 4.783946979047755,
-  "gtrends": 24,
+  "ssr": 4.774073657106627,
   "mvrv": 1.27,
   "mvrv_z": 0.42,
   "nupl": 0.12,
@@ -55,7 +54,7 @@
  },
  "strategy": {
   "strc_price": 95.01,
-  "mstr_price": 108.96929931640625,
+  "mstr_price": 111.62000274658203,
   "mnav_ev": 1.04,
   "mnav_basic": 0.722,
   "btc_holdings": 840447,
@@ -1525,11 +1524,11 @@
    ],
    [
     "2026-11-13",
-    4.988195
+    4.988095
    ],
    [
     "2026-11-13",
-    4.783947
+    4.774074
    ]
   ],
   "stables": [
@@ -11931,7 +11930,7 @@
    ],
    [
     "2026-11-13",
-    287755065575.4
+    287760868790.21
    ]
   ],
   "gtrends": [
@@ -22861,7 +22860,7 @@
    ],
    [
     "2026-11-13",
-    0.0295
+    0.0345
    ]
   ],
   "poly_p50": [
@@ -23175,7 +23174,7 @@
    ],
    [
     "2026-11-13",
-    0.1085
+    0.0955
    ]
   ],
   "reserves": [
