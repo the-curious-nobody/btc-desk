@@ -1,13 +1,13 @@
 {
- "as_of": "2026-11-15 09:25Z",
+ "as_of": "2026-11-15 17:10Z",
  "sample": false,
  "tier1": {
   "poly_mode_usd": 90000.0,
   "poly_p10_usd": 85000.0,
   "poly_p90_usd": 90000.0,
-  "poly_volume_usd": 88701576.85514802,
-  "poly_p_ge_100k": 0.0335,
-  "poly_p_le_50k": 0.1445,
+  "poly_volume_usd": 88877335.58928402,
+  "poly_p_ge_100k": 0.034,
+  "poly_p_le_50k": 0.1645,
   "exchange_reserves_btc": 2210000,
   "_src_exchange_reserves": "Glassnode via media, Mar 2026 (7-yr low). Update weekly.",
   "exchange_netflow_30d_btc": -38000,
@@ -40,7 +40,7 @@
   "_src_urpd": "$86.9K cluster per The Block cost-basis reporting, May 2026; others estimated. Replace weekly from checkonchain URPD."
  },
  "tier3": {
-  "ssr": 4.600662369818983,
+  "ssr": 4.533572012513472,
   "gtrends": 35,
   "mvrv": 1.27,
   "mvrv_z": 0.42,
@@ -54,11 +54,10 @@
   "_src_m2": "US M2 proxy \u2014 pipeline computes from FRED if key set; global composite is manual."
  },
  "strategy": {
-  "strc_price": 95.01,
-  "mstr_price": 111.62000274658203,
   "mnav_ev": 1.04,
   "mnav_basic": 0.722,
   "btc_holdings": 840447,
+  "strc_price": 95.01,
   "usd_reserve_usd": 4650000000,
   "strc_atm_remaining_usd": 17511000000,
   "global_runway_months": 31.3,
@@ -1525,11 +1524,11 @@
    ],
    [
     "2026-11-15",
-    4.492151
+    4.49219
    ],
    [
     "2026-11-15",
-    4.600662
+    4.533572
    ]
   ],
   "stables": [
@@ -11931,7 +11930,7 @@
    ],
    [
     "2026-11-15",
-    287075660007.91
+    287073159353.52
    ]
   ],
   "gtrends": [
@@ -12025,11 +12024,11 @@
    ],
    [
     "2026-04-12",
-    43.0
+    44.0
    ],
    [
     "2026-04-19",
-    37.0
+    38.0
    ],
    [
     "2026-04-26",
@@ -12037,7 +12036,7 @@
    ],
    [
     "2026-05-03",
-    40.0
+    41.0
    ],
    [
     "2026-05-10",
@@ -12045,7 +12044,7 @@
    ],
    [
     "2026-05-17",
-    35.0
+    36.0
    ],
    [
     "2026-05-24",
@@ -12057,7 +12056,7 @@
    ],
    [
     "2026-06-07",
-    45.0
+    44.0
    ],
    [
     "2026-06-14",
@@ -12141,7 +12140,7 @@
    ],
    [
     "2026-11-01",
-    24.0
+    23.0
    ],
    [
     "2026-11-08",
@@ -22873,7 +22872,7 @@
    ],
    [
     "2026-11-15",
-    0.0335
+    0.034
    ]
   ],
   "poly_p50": [
@@ -23195,7 +23194,7 @@
    ],
    [
     "2026-11-15",
-    0.1445
+    0.1645
    ]
   ],
   "reserves": [
