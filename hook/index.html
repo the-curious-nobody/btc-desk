@@ -2678,7 +2678,7 @@ function renderBook(body) {
   $('shTitle').textContent = 'Fish book';
   tabs(D_.WATER_ORDER.map(function (w) { var n = speciesCount(w); return [w, WATERS[w].name.split(' ')[1] + ' ' + n[0] + '/' + n[1]]; }), sheet.tab, function (w) { sheet.tab = w; renderSheet(); });
   var all = speciesCount(), w = sheet.tab;
-  $('shNote').textContent = all[0] + ' of ' + all[1] + ' species. ' + save.total + ' catches, best streak ' + save.bestStreak + '. ' + (save.waters[w] ? 'Tap a fish you have caught to see your biggest.' : 'You have not unlocked ' + WATERS[w].name + ' yet.');
+  $('shNote').textContent = all[0] + ' of ' + all[1] + ' species. ' + save.total + (save.total === 1 ? ' catch' : ' catches') + ', best streak ' + save.bestStreak + '. ' + (save.waters[w] ? 'Tap a fish you have caught to see your biggest.' : 'You have not unlocked ' + WATERS[w].name + ' yet.');
   body.className = 'grid';
   bookOrder(w).forEach(function (sp) {
     var st = save.sp[sp.id], cell = el('button', 'cell' + (st ? '' : ' unknown')); cell.type = 'button';
@@ -2717,7 +2717,7 @@ function renderSpecies(body, sp) {
   recs.forEach(function (r, i) {
     var li = el('li'), b = el('button', 'rec'); b.type = 'button';
     b.appendChild(el('b', '', (r.g ? '★ ' : '') + fmtKg(r.kg)));
-    b.appendChild(el('span', '', r.old ? 'From the first version of the game' : MARKETS[r.m].name + ', ' + dateText(r.t) + (r.lv ? '' : ' (replay)')));
+    b.appendChild(el('span', '', r.old ? 'From the first version of the game' : MARKETS[r.m].name + ', ' + dateText(r.t, true) + (r.lv ? '' : ' (replay)')));
     b.appendChild(el('small', '', r.old ? 'No story was kept for it' : sceneText(r.tr, r.td, r.ev) + '. Swing ' + fmtSwing(r.sw, MARKETS[r.m].dec) + ' in ' + Math.round(r.d) + ' s'));
     b.setAttribute('aria-label', 'Number ' + (i + 1) + ', ' + fmtKg(r.kg));
     b.addEventListener('click', function () { sfx.tap(); openCatch(r); });
@@ -2849,7 +2849,8 @@ function drawCatchCard(cvs, r) {
         hi = Math.max(hi, 1); var slot = (gw - 40) / n, cwid = Math.max(4, Math.min(22, slot * 0.62)), yy = function (v) { return gy + gh - 24 - (v / hi) * (gh - 48); };
         var lead = Math.max(0, Math.round((n - (r.d / (k.s || 1))) - 1)), hx = gx + 20 + slot * lead;
         c.setLineDash([8, 8]); c.beginPath(); c.moveTo(hx, gy + 10); c.lineTo(hx, gy + gh - 10); inkLine(3, 'rgba(42,26,18,0.4)'); c.setLineDash([]);
-        plain('hooked', hx + 8, gy + 30, { size: 22, fill: 'rgba(42,26,18,0.55)' });
+        var hookTop = yy(k.v[Math.min(n - 1, lead) * 4]) < gy + gh / 2;      // the label goes to whichever end the candles leave free
+        plain('hooked', hx + 8, hookTop ? gy + gh - 16 : gy + 30, { size: 22, fill: 'rgba(42,26,18,0.55)' });
         for (i = 0; i < n; i++) {
           var o = k.v[i * 4], h = k.v[i * 4 + 1], l = k.v[i * 4 + 2], cl = k.v[i * 4 + 3], cx = gx + 20 + slot * (i + 0.5);
           c.beginPath(); c.moveTo(cx, yy(h)); c.lineTo(cx, yy(l)); inkLine(3);
