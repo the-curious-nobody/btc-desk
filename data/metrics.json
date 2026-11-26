@@ -1,13 +1,13 @@
 {
- "as_of": "2026-11-26 05:03Z",
+ "as_of": "2026-11-26 15:15Z",
  "sample": false,
  "tier1": {
   "poly_mode_usd": 90000.0,
   "poly_p10_usd": 85000.0,
   "poly_p90_usd": 90000.0,
-  "poly_volume_usd": 96155953.111403,
-  "poly_p_ge_100k": 0.0125,
-  "poly_p_le_50k": 0.265,
+  "poly_volume_usd": 96305077.003763,
+  "poly_p_ge_100k": 0.013,
+  "poly_p_le_50k": 0.2795,
   "exchange_reserves_btc": 2210000,
   "_src_exchange_reserves": "Glassnode via media, Mar 2026 (7-yr low). Update weekly.",
   "exchange_netflow_30d_btc": -38000,
@@ -40,8 +40,7 @@
   "_src_urpd": "$86.9K cluster per The Block cost-basis reporting, May 2026; others estimated. Replace weekly from checkonchain URPD."
  },
  "tier3": {
-  "ssr": 4.344047264445634,
-  "gtrends": 28,
+  "ssr": 4.291828064986453,
   "mvrv": 1.27,
   "mvrv_z": 0.42,
   "nupl": 0.12,
@@ -54,10 +53,11 @@
   "_src_m2": "US M2 proxy \u2014 pipeline computes from FRED if key set; global composite is manual."
  },
  "strategy": {
+  "strc_price": 95.01,
+  "mstr_price": 79.95999908447266,
   "mnav_ev": 1.04,
   "mnav_basic": 0.722,
   "btc_holdings": 840447,
-  "strc_price": 95.01,
   "usd_reserve_usd": 4650000000,
   "strc_atm_remaining_usd": 17511000000,
   "global_runway_months": 31.3,
@@ -788,7 +788,7 @@
    ],
    [
     "2026-05-26",
-    4.956035
+    4.942704
    ],
    [
     "2026-05-27",
@@ -796,7 +796,7 @@
    ],
    [
     "2026-05-28",
-    4.782761
+    4.78256
    ],
    [
     "2026-05-29",
@@ -1524,11 +1524,11 @@
    ],
    [
     "2026-11-26",
-    4.303636
+    4.303515
    ],
    [
     "2026-11-26",
-    4.344047
+    4.291828
    ]
   ],
   "stables": [
@@ -11930,7 +11930,7 @@
    ],
    [
     "2026-11-26",
-    282218706181.54
+    282226655330.71
    ]
   ],
   "gtrends": [
@@ -22912,7 +22912,7 @@
    ],
    [
     "2026-11-26",
-    0.0125
+    0.013
    ]
   ],
   "poly_p50": [
@@ -23278,7 +23278,7 @@
    ],
    [
     "2026-11-26",
-    0.265
+    0.2795
    ]
   ],
   "reserves": [
